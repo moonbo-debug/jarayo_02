@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { X, Battery, BatteryWarning, Zap, Send, Clock, Sparkles, Smile, Frown, Moon, Thermometer, AlertTriangle, Plus, Trash2, Lock, Milk, Flame, Coffee, Baby } from 'lucide-react';
 import { EnergyLevel, ShiftReport, BabyMood, Mission } from '../types';
 import { format, addMinutes } from 'date-fns';
@@ -12,43 +14,43 @@ interface ShiftModalProps {
 const NEXT_ACTION_TAGS = ['수유', '재우기', '목욕', '약 먹이기', '놀아주기', '설거지', '빨래'];
 
 const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) => {
-  // Baby State (Primary) - Now Array for Multi-select
-  const [babyMoods, setBabyMoods] = useState<BabyMood[]>(['happy']);
+  const [searchParams, setSearchParams] = useSearchParams();
   
-  // Mission/Task State
+  // Initialize state from URL Params
+  const moodsFromUrl = searchParams.get('moods')?.split(',').filter(Boolean) as BabyMood[] || ['happy'];
+  const energyFromUrl = (searchParams.get('energy') as EnergyLevel) || 'medium';
+
+  // Local state for things that don't need instant URL reflection (like text input)
+  // or sync them too if desired. For now, we sync the main "Selections".
+  
   const [missions, setMissions] = useState<Mission[]>([]);
   const [nextAction, setNextAction] = useState('');
   const [nextActionTime, setNextActionTime] = useState('');
-
-  // Caregiver State (Secondary)
-  const [energy, setEnergy] = useState<EnergyLevel>('medium');
-  const [wishlist, setWishlist] = useState(''); // Extra Message
-  
-  // System State
+  const [wishlist, setWishlist] = useState('');
   const [briefing, setBriefing] = useState('');
   const [isEarlyExit, setIsEarlyExit] = useState(false);
 
-  // Simulate auto-generation when modal opens
   useEffect(() => {
     if (isOpen) {
-      // 1. Check Time for Early Exit
       const currentHour = new Date().getHours();
       const scheduledEnd = 21; 
       setIsEarlyExit(currentHour < scheduledEnd);
 
-      // 2. Default Next Action Time
       const nextTime = addMinutes(new Date(), 30);
       setNextActionTime(format(nextTime, 'HH:mm'));
 
-      // 3. Auto Briefing (Mock Logic)
       setBriefing("오늘 총 수유 4회(680ml), 낮잠 2시간 잤어요. 3시쯤에 약간 칭얼거렸는데 기저귀 갈아주니 괜찮아졌습니다.");
       
-      // Reset States
-      setBabyMoods(['happy']);
-      setNextAction('');
-      setWishlist('');
-      setEnergy('medium');
-      setMissions([]);
+      // Clear URL params if just opened? 
+      // No, we want to preserve them if user navigates back/forth or shares link.
+      // But if empty, we might want defaults.
+      if (!searchParams.has('moods')) {
+          setSearchParams(prev => {
+              prev.set('moods', 'happy');
+              prev.set('energy', 'medium');
+              return prev;
+          }, { replace: true });
+      }
     }
   }, [isOpen]);
 
@@ -56,9 +58,9 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
 
   const handleSubmit = () => {
     onSubmit({
-      babyMoods,
+      babyMoods: moodsFromUrl,
       missions: missions,
-      caregiverEnergy: energy,
+      caregiverEnergy: energyFromUrl,
       wishlist,
       autoBriefing: briefing,
       timestamp: new Date(),
@@ -68,36 +70,47 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
   };
 
   const toggleBabyMood = (mood: BabyMood) => {
-      setBabyMoods(prev => {
-          if (prev.includes(mood)) {
-              // Always keep at least one if it's the only one? No, allow empty but default to something is better.
-              // Let's allow deselecting everything, but UI might look empty.
-              return prev.filter(m => m !== mood);
+      const currentMoods = moodsFromUrl;
+      let newMoods;
+      if (currentMoods.includes(mood)) {
+          newMoods = currentMoods.filter(m => m !== mood);
+      } else {
+          newMoods = [...currentMoods, mood];
+      }
+      
+      // Update URL
+      setSearchParams(prev => {
+          if (newMoods.length > 0) {
+              prev.set('moods', newMoods.join(','));
           } else {
-              return [...prev, mood];
+              prev.delete('moods');
           }
-      });
+          return prev;
+      }, { replace: true });
+  };
+
+  const setEnergy = (level: EnergyLevel) => {
+      setSearchParams(prev => {
+          prev.set('energy', level);
+          return prev;
+      }, { replace: true });
   };
 
   const addMission = () => {
-      // Check Limit: Free tier allows only 1 mission
       if (missions.length >= 1) {
-          // Trigger Premium Alert
           alert("🔒 프리미엄 기능: 미션은 한 번에 최대 1개까지만 등록할 수 있습니다. 무제한 미션을 원하시면 업그레이드하세요!");
           return;
       }
-
       if (nextAction.trim()) {
           const newMission: Mission = {
               id: Date.now().toString(),
               text: nextAction,
               time: nextActionTime,
               isCompleted: false,
-              assignerName: '나' // Will be mapped in parent
+              assignerName: '나'
           };
           setMissions([...missions, newMission]);
           setNextAction('');
-          // Increment default time for next item
           const [h, m] = nextActionTime.split(':').map(Number);
           const nextDate = new Date();
           nextDate.setHours(h);
@@ -118,7 +131,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
     setNextAction(tag);
   };
 
-  // Logic to determine if "Add" button should be locked
   const isLimitReached = missions.length >= 1;
 
   const energyOptions: { id: EnergyLevel, label: string, icon: React.ReactNode, colorClass: string }[] = [
@@ -157,7 +169,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
 
         <div className="overflow-y-auto p-5 space-y-8 pb-8 no-scrollbar flex-1">
           
-          {/* 1. Baby Mood (Primary) - Multi Select */}
+          {/* 1. Baby Mood (Synced with URL) */}
           <section>
              <div className="flex justify-between items-center mb-3">
                 <h3 className="text-sm font-bold text-indigo-900 flex items-center gap-1">
@@ -168,7 +180,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
              
              <div className="grid grid-cols-4 gap-2.5">
                 {moodOptions.map((option) => {
-                    const isSelected = babyMoods.includes(option.id);
+                    const isSelected = moodsFromUrl.includes(option.id);
                     return (
                         <button 
                             key={option.id}
@@ -198,7 +210,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
                  </span>
              </div>
              
-             {/* Added Missions List */}
              {missions.length > 0 && (
                  <div className="space-y-2 mb-4">
                      {missions.map((m) => (
@@ -215,9 +226,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
                  </div>
              )}
 
-             {/* Input Area */}
              <div className="flex gap-2 mb-3">
-                 {/* Fixed Time Input: wider, better padding */}
                  <div className="bg-white px-3 py-2 rounded-xl border border-orange-200 flex items-center gap-1 shadow-sm w-[110px] focus-within:ring-2 focus-within:ring-orange-300 shrink-0">
                     <Clock size={16} className="text-orange-400 shrink-0" />
                     <input 
@@ -240,7 +249,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
                         onKeyDown={(e) => e.key === 'Enter' && addMission()}
                     />
                     
-                    {/* Add Button Logic: Show Lock if limit reached */}
                     {isLimitReached ? (
                         <button 
                             onClick={handlePremiumClick}
@@ -260,7 +268,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
                  </div>
              </div>
 
-             {/* Tags */}
              <div className="flex gap-2 flex-wrap">
                  {NEXT_ACTION_TAGS.map(tag => (
                      <button
@@ -293,13 +300,13 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
             </div>
           </section>
 
-          {/* 4. Caregiver Status (Condensed) */}
+          {/* 4. Caregiver Status (Synced with URL) */}
           <section className="border-t border-gray-100 pt-4">
              <div className="flex justify-between items-center mb-3">
                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide">내 상태 & 한마디</h3>
                  <div className="flex gap-1.5 bg-gray-100 p-1 rounded-full">
                     {energyOptions.map((opt) => {
-                        const isSelected = energy === opt.id;
+                        const isSelected = energyFromUrl === opt.id;
                         return (
                             <button 
                                 key={opt.id}

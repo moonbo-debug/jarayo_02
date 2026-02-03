@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Log, User, LogType } from '../types';
 import { Trophy, Baby, Utensils, Moon, Activity, Crown, Shield, Star, ChevronRight, PieChart as PieIcon, TrendingUp, Calendar, ArrowUpRight } from 'lucide-react';
 import { 
@@ -56,8 +57,7 @@ const generateWeeklyData = () => {
 const PIE_COLORS = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b'];
 
 const History: React.FC<HistoryProps> = ({ logs, currentUser, partner, onOpenDoctorReport }) => {
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isMsgModalOpen, setIsMsgModalOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'stats' | 'ranking'>('stats');
   
   const weeklyData = useMemo(() => generateWeeklyData(), []);
@@ -88,6 +88,14 @@ const History: React.FC<HistoryProps> = ({ logs, currentUser, partner, onOpenDoc
     return userStats.sort((a, b) => b.points - a.points);
   }, [logs, currentUser, partner]);
 
+  // URL에서 선택된 유저 찾기
+  const targetUserId = searchParams.get('msgTo');
+  const selectedUser = useMemo(() => {
+      return stats.find(u => u.id === targetUserId) || null;
+  }, [stats, targetUserId]);
+  
+  const isMsgModalOpen = !!selectedUser;
+
   // 기여도 파이 차트 데이터
   const pieData = stats.map(u => ({
       name: u.name,
@@ -95,8 +103,17 @@ const History: React.FC<HistoryProps> = ({ logs, currentUser, partner, onOpenDoc
   }));
 
   const handleCardClick = (user: any) => {
-      setSelectedUser(user);
-      setIsMsgModalOpen(true);
+      setSearchParams(prev => {
+          prev.set('msgTo', user.id);
+          return prev;
+      });
+  };
+
+  const closeMsgModal = () => {
+      setSearchParams(prev => {
+          prev.delete('msgTo');
+          return prev;
+      });
   };
 
   const CustomTooltip = ({ active, payload, label, unit }: any) => {
@@ -405,7 +422,7 @@ const History: React.FC<HistoryProps> = ({ logs, currentUser, partner, onOpenDoc
       {selectedUser && (
         <SendMessageModal 
             isOpen={isMsgModalOpen}
-            onClose={() => setIsMsgModalOpen(false)}
+            onClose={closeMsgModal}
             targetUser={selectedUser}
         />
       )}

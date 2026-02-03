@@ -1,18 +1,19 @@
+
 import React, { useState } from 'react';
 import { Home, PieChart, Settings as SettingsIcon, Calendar } from 'lucide-react';
+import { Routes, Route, useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import History from './components/History';
 import Settings from './components/Settings';
 import Schedule from './components/Schedule';
 import ShiftModal from './components/ShiftModal';
 import DoctorReportModal from './components/DoctorReportModal';
-import { ViewState, Log, LogType, LogSubType, ShiftReport, Mission } from './types';
+import { Log, LogType, LogSubType, ShiftReport, Mission } from './types';
 import { CURRENT_USER, PARTNER_USER, INITIAL_LOGS } from './constants';
 
 const App = () => {
-  const [currentView, setCurrentView] = useState<ViewState>('dashboard');
-  const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
-  const [isDoctorReportOpen, setIsDoctorReportOpen] = useState(false); // Global state for Doctor Report
+  const navigate = useNavigate();
+  const location = useLocation();
   const [logs, setLogs] = useState<Log[]>(INITIAL_LOGS);
   
   // Initial Mock Mission from Partner
@@ -26,6 +27,15 @@ const App = () => {
           memo: ''
       }
   ]);
+
+  // Determine current active tab based on path
+  const currentPath = location.pathname;
+  let activeTab = 'dashboard';
+  if (currentPath.includes('schedule')) activeTab = 'schedule';
+  else if (currentPath.includes('history')) activeTab = 'history';
+  else if (currentPath.includes('settings')) activeTab = 'settings';
+  else if (currentPath.includes('report') || currentPath.includes('shift')) activeTab = 'dashboard';
+  else activeTab = 'dashboard';
 
   // Handlers
   const handleAddLog = (type: LogType, subType?: LogSubType, value?: string, note?: string) => {
@@ -88,37 +98,23 @@ const App = () => {
       ));
   };
 
-  const renderView = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return (
-          <Dashboard 
-            currentUser={CURRENT_USER}
-            partner={PARTNER_USER}
-            logs={logs}
-            activeMissions={activeMissions}
-            onAddLog={handleAddLog}
-            onOpenShiftModal={() => setIsShiftModalOpen(true)}
-            onToggleMission={handleToggleMission}
-            onUpdateMissionMemo={handleUpdateMissionMemo}
-            onOpenDoctorReport={() => setIsDoctorReportOpen(true)}
-          />
-        );
-      case 'schedule':
-        return <Schedule />;
-      case 'history':
-        return (
-            <History 
-                logs={logs} 
-                currentUser={CURRENT_USER} 
-                partner={PARTNER_USER} 
-                onOpenDoctorReport={() => setIsDoctorReportOpen(true)}
-            />
-        );
-      case 'settings':
-        return <Settings currentUser={CURRENT_USER} />;
-    }
-  };
+  // Layout wrapper to keep Dashboard mounted while modals are open
+  const DashboardLayout = () => (
+    <>
+      <Dashboard 
+        currentUser={CURRENT_USER}
+        partner={PARTNER_USER}
+        logs={logs}
+        activeMissions={activeMissions}
+        onAddLog={handleAddLog}
+        onOpenShiftModal={() => navigate('/shift')}
+        onToggleMission={handleToggleMission}
+        onUpdateMissionMemo={handleUpdateMissionMemo}
+        onOpenDoctorReport={() => navigate('/report')}
+      />
+      <Outlet />
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 text-gray-900 font-sans selection:bg-indigo-100">
@@ -126,58 +122,75 @@ const App = () => {
       {/* Main Content Area */}
       <main className="max-w-md mx-auto min-h-screen bg-white sm:shadow-xl sm:border-x sm:border-gray-100 relative">
         <div className="pt-2">
-          {renderView()}
+          <Routes>
+            {/* Dashboard Routes with Layout for Persistence */}
+            <Route element={<DashboardLayout />}>
+              <Route path="/" element={null} />
+              <Route path="/shift" element={
+                <ShiftModal 
+                  isOpen={true} 
+                  onClose={() => navigate(-1)} 
+                  onSubmit={handleShiftSubmit}
+                />
+              } />
+              <Route path="/report" element={
+                <DoctorReportModal
+                  isOpen={true}
+                  onClose={() => navigate(-1)}
+                />
+              } />
+            </Route>
+
+            <Route path="/schedule" element={<Schedule />} />
+            <Route path="/history" element={
+                <History 
+                    logs={logs} 
+                    currentUser={CURRENT_USER} 
+                    partner={PARTNER_USER} 
+                    onOpenDoctorReport={() => navigate('/report')}
+                />
+            } />
+            <Route path="/settings" element={<Settings currentUser={CURRENT_USER} />} />
+          </Routes>
         </div>
 
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-30 max-w-md mx-auto">
           <div className="flex justify-around items-center h-16 pb-2">
-            <button 
-              onClick={() => setCurrentView('dashboard')}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentView === 'dashboard' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+            <Link 
+              to="/"
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'dashboard' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
             >
-              <Home size={24} strokeWidth={currentView === 'dashboard' ? 2.5 : 2} />
+              <Home size={24} strokeWidth={activeTab === 'dashboard' ? 2.5 : 2} />
               <span className="text-[10px] font-bold">홈</span>
-            </button>
+            </Link>
             
-            <button 
-              onClick={() => setCurrentView('schedule')}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentView === 'schedule' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+            <Link 
+              to="/schedule"
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'schedule' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
             >
-              <Calendar size={24} strokeWidth={currentView === 'schedule' ? 2.5 : 2} />
+              <Calendar size={24} strokeWidth={activeTab === 'schedule' ? 2.5 : 2} />
               <span className="text-[10px] font-bold">일정</span>
-            </button>
+            </Link>
 
-            <button 
-              onClick={() => setCurrentView('history')}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentView === 'history' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+            <Link 
+              to="/history"
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'history' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
             >
-              <PieChart size={24} strokeWidth={currentView === 'history' ? 2.5 : 2} />
+              <PieChart size={24} strokeWidth={activeTab === 'history' ? 2.5 : 2} />
               <span className="text-[10px] font-bold">통계</span>
-            </button>
+            </Link>
 
-            <button 
-              onClick={() => setCurrentView('settings')}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${currentView === 'settings' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+            <Link 
+              to="/settings"
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'settings' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
             >
-              <SettingsIcon size={24} strokeWidth={currentView === 'settings' ? 2.5 : 2} />
+              <SettingsIcon size={24} strokeWidth={activeTab === 'settings' ? 2.5 : 2} />
               <span className="text-[10px] font-bold">설정</span>
-            </button>
+            </Link>
           </div>
         </nav>
       </main>
-
-      {/* Modals */}
-      <ShiftModal 
-        isOpen={isShiftModalOpen} 
-        onClose={() => setIsShiftModalOpen(false)} 
-        onSubmit={handleShiftSubmit}
-      />
-
-      <DoctorReportModal
-        isOpen={isDoctorReportOpen}
-        onClose={() => setIsDoctorReportOpen(false)}
-      />
       
     </div>
   );

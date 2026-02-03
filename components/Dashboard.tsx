@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Baby, Milk, Moon, Clock, Phone, ChevronLeft, Calendar, MoreHorizontal, ImageIcon, CheckCircle2, ClipboardList, ArrowRight, Hourglass, CheckSquare, MessageSquare, Plus, ChevronDown, Send, Pencil, XCircle, Stethoscope } from 'lucide-react';
 import { User, Log, LogType, LogSubType, Mission } from '../types';
 import { format } from 'date-fns';
@@ -36,17 +38,19 @@ const Dashboard: React.FC<DashboardProps> = ({
     onUpdateMissionMemo,
     onOpenDoctorReport
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [shiftDuration, setShiftDuration] = useState(0);
   const [showAllLogs, setShowAllLogs] = useState(false);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [memoInputs, setMemoInputs] = useState<Record<string, string>>({});
   const [isEditingMemo, setIsEditingMemo] = useState<Record<string, boolean>>({});
   
-  // Modals
-  const [isCaregiverModalOpen, setIsCaregiverModalOpen] = useState(false);
+  // URL-driven Modals
+  const actionParam = searchParams.get('action');
+  const isCaregiverModalOpen = actionParam === 'caregiver';
+  const isQuickLogOpen = actionParam === 'quick';
   
-  // Quick Log Modal State
-  const [isQuickLogOpen, setIsQuickLogOpen] = useState(false);
+  // Quick Log Type from URL or default
   const [quickLogType, setQuickLogType] = useState<LogType>('diaper');
 
   const [nextCaregiver, setNextCaregiver] = useState<User>(partner);
@@ -80,13 +84,26 @@ const Dashboard: React.FC<DashboardProps> = ({
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const openModal = (action: string) => {
+      setSearchParams(prev => {
+          prev.set('action', action);
+          return prev;
+      });
+  };
+
+  const closeModal = () => {
+      setSearchParams(prev => {
+          prev.delete('action');
+          return prev;
+      });
+  };
+
   const handleQuickAction = (type: LogType) => {
       setQuickLogType(type);
-      setIsQuickLogOpen(true);
+      openModal('quick');
   };
 
   const handleQuickLogSave = (data: { type: LogType, subType?: LogSubType, time: Date, value?: string, note?: string }) => {
-      // Pass the data up to the parent App component
       onAddLog(data.type, data.subType, data.value, data.note);
   };
 
@@ -348,7 +365,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             {/* Footer Actions */}
             <div className="flex items-center justify-between pt-2">
                 {/* Next User Info */}
-                <div className="flex items-center gap-3" onClick={() => setIsCaregiverModalOpen(true)}>
+                <div className="flex items-center gap-3 cursor-pointer" onClick={() => openModal('caregiver')}>
                     <div className="relative">
                         <img src={nextCaregiver.avatar} className="w-10 h-10 rounded-full border-2 border-white shadow-sm bg-gray-50" alt="Next" />
                         <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-gray-100">
@@ -507,10 +524,10 @@ const Dashboard: React.FC<DashboardProps> = ({
          </div>
       </div>
 
-      {/* Modals */}
+      {/* Modals driven by URL Params */}
       <CaregiverModal 
         isOpen={isCaregiverModalOpen}
-        onClose={() => setIsCaregiverModalOpen(false)}
+        onClose={closeModal}
         users={availableUsers}
         selectedUserId={nextCaregiver.id}
         onSelect={setNextCaregiver}
@@ -519,7 +536,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       <QuickLogModal
         isOpen={isQuickLogOpen}
-        onClose={() => setIsQuickLogOpen(false)}
+        onClose={closeModal}
         initialType={quickLogType}
         onSave={handleQuickLogSave}
       />
