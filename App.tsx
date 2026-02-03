@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Home, PieChart, Settings as SettingsIcon, Calendar } from 'lucide-react';
-import { Routes, Route, useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, Link, Outlet, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import History from './components/History';
 import Settings from './components/Settings';
@@ -34,7 +34,8 @@ const App = () => {
   if (currentPath.includes('schedule')) activeTab = 'schedule';
   else if (currentPath.includes('history')) activeTab = 'history';
   else if (currentPath.includes('settings')) activeTab = 'settings';
-  else if (currentPath.includes('report') || currentPath.includes('shift')) activeTab = 'dashboard';
+  // Include 'home' in dashboard tab logic
+  else if (currentPath.includes('report') || currentPath.includes('shift') || currentPath.includes('home')) activeTab = 'dashboard';
   else activeTab = 'dashboard';
 
   // Handlers
@@ -86,7 +87,7 @@ const App = () => {
     );
 
     // Maze Tracking: Navigate to a success state URL
-    navigate('/?report_status=success');
+    navigate('/home?report_status=success');
   };
 
   const handleToggleMission = (id: string) => {
@@ -128,7 +129,10 @@ const App = () => {
           <Routes>
             {/* Dashboard Routes with Layout for Persistence */}
             <Route element={<DashboardLayout />}>
-              <Route path="/" element={null} />
+              {/* Redirect root to /home explicitly for Maze & Clarity */}
+              <Route path="/" element={<Navigate to="/home" replace />} />
+              <Route path="/home" element={null} />
+              
               <Route path="/shift" element={
                 <ShiftModal 
                   isOpen={true} 
@@ -161,7 +165,7 @@ const App = () => {
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-30 max-w-md mx-auto">
           <div className="flex justify-around items-center h-16 pb-2">
             <Link 
-              to="/"
+              to="/home"
               className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'dashboard' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
             >
               <Home size={24} strokeWidth={activeTab === 'dashboard' ? 2.5 : 2} />

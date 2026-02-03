@@ -64,7 +64,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
       timestamp: new Date(),
       isEarlyExit,
     });
-    onClose();
+    // onClose(); // Removed to avoid navigation conflict. Parent handles closing/navigation via onSubmit.
   };
 
   const toggleBabyMood = (mood: BabyMood) => {
