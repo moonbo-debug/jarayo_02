@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Baby, Milk, Moon, Clock, Phone, ChevronLeft, Calendar, MoreHorizontal, ImageIcon, CheckCircle2, ClipboardList, ArrowRight, Hourglass, CheckSquare, MessageSquare, Plus, ChevronDown, Send, Pencil, XCircle, Stethoscope } from 'lucide-react';
+import { Baby, Milk, Moon, Clock, Phone, ChevronLeft, Calendar, MoreHorizontal, ImageIcon, CheckCircle2, ClipboardList, ArrowRight, Hourglass, CheckSquare, MessageSquare, Plus, ChevronDown, Send, Pencil, XCircle, Stethoscope, AlertCircle } from 'lucide-react';
 import { User, Log, LogType, LogSubType, Mission } from '../types';
 import { format } from 'date-fns';
 import CaregiverModal from './CaregiverModal';
@@ -128,17 +128,22 @@ const Dashboard: React.FC<DashboardProps> = ({
   const handleEditProfile = () => {
       alert("프로필 수정 화면으로 이동합니다 (준비중)");
   };
+  
+  // Wrapped Toggle Handler for Maze URL Tracking
+  const handleMissionClick = (id: string, currentStatus: boolean) => {
+      // 1. Trigger functionality
+      onToggleMission(id);
+      
+      // 2. Change URL for Maze (Hash router handles this automatically via searchParams)
+      setSearchParams(prev => {
+          prev.set('mission_status', !currentStatus ? 'completed' : 'pending');
+          return prev;
+      });
+  };
 
   // Filter logs to show only CURRENT USER's activities
   const myLogs = logs.filter(log => log.user === currentUser.name);
   const displayedLogs = showAllLogs ? myLogs : myLogs.slice(0, 2);
-
-  // --- Calculate Handoff Readiness Score (Gamification) ---
-  const handoffScore = useMemo(() => {
-    if (!isMeOnDuty) return 0;
-    const logPoints = Math.min(myLogs.length * 20, 100); // 5 logs = 100%
-    return logPoints;
-  }, [myLogs, isMeOnDuty]);
 
   return (
     <div className="pb-32 bg-white min-h-screen relative">
@@ -240,7 +245,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                 <div className="flex items-start gap-3 mb-2">
                                     {/* Separate Checkbox Target to prevent accidental toggles */}
                                     <button 
-                                        onClick={() => onToggleMission(mission.id)}
+                                        onClick={() => handleMissionClick(mission.id, mission.isCompleted)}
                                         className={`mt-0.5 w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all shrink-0 active:scale-90 ${mission.isCompleted ? 'bg-indigo-500 border-indigo-500' : 'border-gray-300 bg-white hover:border-indigo-300'}`}
                                     >
                                         {mission.isCompleted && <CheckCircle2 size={16} className="text-white" strokeWidth={3} />}
@@ -378,20 +383,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </div>
                 </div>
 
-                {/* Action Button */}
+                {/* Action Button - Simplified */}
                 <button 
                     onClick={onOpenShiftModal}
-                    className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg ${
-                        handoffScore >= 80 
-                        ? 'bg-green-500 hover:bg-green-600 text-white shadow-green-200' 
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200'
-                    }`}
+                    className="flex items-center gap-2 px-6 py-3.5 rounded-2xl transition-all active:scale-95 shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200"
                 >
-                    {handoffScore >= 80 ? (
-                        <><CheckCircle2 size={16} /> 인계장 작성</>
-                    ) : (
-                        <><ClipboardList size={16} /> 인계장 작성</>
-                    )}
+                    <ClipboardList size={20} />
+                    <span className="text-sm font-bold">인계장 작성하기</span>
                 </button>
             </div>
         </div>

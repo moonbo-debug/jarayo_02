@@ -11,13 +11,13 @@ interface ShiftModalProps {
   onSubmit: (report: ShiftReport) => void;
 }
 
-const NEXT_ACTION_TAGS = ['수유', '재우기', '목욕', '약 먹이기', '놀아주기', '설거지', '빨래'];
+const NEXT_ACTION_TAGS = ['약 먹이기', '수유', '재우기', '목욕', '놀아주기', '설거지', '빨래'];
 
 const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Initialize state from URL Params
-  const moodsFromUrl = searchParams.get('moods')?.split(',').filter(Boolean) as BabyMood[] || ['happy'];
+  const moodsFromUrl = searchParams.get('moods')?.split(',').filter(Boolean) as BabyMood[] || [];
   const energyFromUrl = (searchParams.get('energy') as EnergyLevel) || 'medium';
 
   // Local state for things that don't need instant URL reflection (like text input)
@@ -36,17 +36,15 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
       const scheduledEnd = 21; 
       setIsEarlyExit(currentHour < scheduledEnd);
 
-      const nextTime = addMinutes(new Date(), 30);
-      setNextActionTime(format(nextTime, 'HH:mm'));
+      // Default time set to 16:00
+      setNextActionTime('16:00');
 
       setBriefing("오늘 총 수유 4회(680ml), 낮잠 2시간 잤어요. 3시쯤에 약간 칭얼거렸는데 기저귀 갈아주니 괜찮아졌습니다.");
       
       // Clear URL params if just opened? 
-      // No, we want to preserve them if user navigates back/forth or shares link.
-      // But if empty, we might want defaults.
-      if (!searchParams.has('moods')) {
+      // Ensure NO MOOD is selected by default. Only set default Energy.
+      if (!searchParams.has('energy')) {
           setSearchParams(prev => {
-              prev.set('moods', 'happy');
               prev.set('energy', 'medium');
               return prev;
           }, { replace: true });
@@ -111,6 +109,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
           };
           setMissions([...missions, newMission]);
           setNextAction('');
+          // Auto increment logic for next mission time can stay or be removed. Keeping logic for next adding convenience
           const [h, m] = nextActionTime.split(':').map(Number);
           const nextDate = new Date();
           nextDate.setHours(h);
@@ -227,7 +226,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
              )}
 
              <div className="flex gap-2 mb-3">
-                 <div className="bg-white px-3 py-2 rounded-xl border border-orange-200 flex items-center gap-1 shadow-sm w-[110px] focus-within:ring-2 focus-within:ring-orange-300 shrink-0">
+                 <div className="bg-white px-3 py-2 rounded-xl border border-orange-200 flex items-center gap-1 shadow-sm w-[150px] focus-within:ring-2 focus-within:ring-orange-300 shrink-0">
                     <Clock size={16} className="text-orange-400 shrink-0" />
                     <input 
                         type="time" 

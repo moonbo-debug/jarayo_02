@@ -84,6 +84,9 @@ const App = () => {
         `📝 요약: ${report.autoBriefing}\n` +
         `💬 한마디: ${report.wishlist}`
     );
+
+    // Maze Tracking: Navigate to a success state URL
+    navigate('/?report_status=success');
   };
 
   const handleToggleMission = (id: string) => {
