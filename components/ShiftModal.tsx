@@ -19,10 +19,12 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
   // Initialize state from URL Params
   const moodsFromUrl = searchParams.get('moods')?.split(',').filter(Boolean) as BabyMood[] || [];
   const energyFromUrl = (searchParams.get('energy') as EnergyLevel) || 'medium';
+  // Maze Tracking: Initialize mission from URL if present
+  const missionFromUrl = searchParams.get('mission') || '';
 
   // Local state
   const [missions, setMissions] = useState<Mission[]>([]);
-  const [nextAction, setNextAction] = useState('');
+  const [nextAction, setNextAction] = useState(missionFromUrl);
   const [nextActionTime, setNextActionTime] = useState('');
   const [wishlist, setWishlist] = useState('');
   const [briefing, setBriefing] = useState('');
@@ -124,6 +126,18 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
 
   const handleNextActionTag = (tag: string) => {
     setNextAction(tag);
+    // Maze Tracking: Update URL to distinguish this state
+    setSearchParams(prev => {
+        prev.set('mission', tag);
+        return prev;
+    }, { replace: true });
+  };
+
+  const handleNextActionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value;
+      setNextAction(val);
+      // Optional: Update URL on change (might be too frequent, but keeps state valid)
+      // For Maze, sticking to click events is usually safer, but let's keep it clean.
   };
 
   const handlePremiumAdd = () => {
@@ -208,7 +222,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
                     <input 
                         type="text"
                         value={nextAction}
-                        onChange={(e) => setNextAction(e.target.value)}
+                        onChange={handleNextActionChange}
                         placeholder="예: 분유 먹이기"
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black outline-none font-medium text-gray-900 placeholder-gray-400 text-sm bg-gray-50"
                     />
@@ -221,7 +235,11 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
                      <button
                         key={tag}
                         onClick={() => handleNextActionTag(tag)}
-                        className="text-xs px-3 py-1.5 rounded-full font-bold bg-white border border-gray-200 text-gray-500 hover:border-black hover:text-black transition-colors"
+                        className={`text-xs px-3 py-1.5 rounded-full font-bold border transition-colors ${
+                            nextAction === tag 
+                            ? 'bg-black text-white border-black' 
+                            : 'bg-white border-gray-200 text-gray-500 hover:border-black hover:text-black'
+                        }`}
                      >
                         {tag}
                      </button>

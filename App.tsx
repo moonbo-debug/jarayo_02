@@ -12,26 +12,6 @@ import DoctorReportModal from './components/DoctorReportModal';
 import { Log, LogType, LogSubType, ShiftReport, Mission } from './types';
 import { CURRENT_USER, PARTNER_USER, INITIAL_LOGS } from './constants';
 
-// Simple Success Page for Maze Tracking (URL: /#/success)
-const SuccessPage = () => {
-  const navigate = useNavigate();
-  return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-        <div className="w-20 h-20 bg-lime-400 rounded-full flex items-center justify-center mb-6 shadow-lg animate-bounce-slow">
-            <CheckCircle2 size={40} className="text-white" strokeWidth={3} />
-        </div>
-        <h1 className="text-2xl font-black text-gray-900 mb-2">전송 완료!</h1>
-        <p className="text-gray-500 mb-8">성공적으로 인계장을 보냈습니다.</p>
-        <button 
-            onClick={() => navigate('/home')}
-            className="w-full max-w-xs bg-black text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform"
-        >
-            홈으로 돌아가기
-        </button>
-    </div>
-  );
-};
-
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,8 +83,11 @@ const App = () => {
     
     console.log("Shift Report:", reportWithAuthor);
 
-    // Maze Tracking: Navigate to a explicit success URL
-    navigate('/success');
+    // Maze Tracking: Navigate to Home with params indicating success and content existence
+    // tab=sent: Switch tab to 'Sent'
+    // toast=success: Show toast popup
+    // has_report=true: Distinct URL for state where report exists
+    navigate('/home?tab=sent&toast=success&has_report=true');
   };
 
   const handleToggleMission = (id: string) => {
@@ -186,14 +169,10 @@ const App = () => {
                 />
             } />
             <Route path="/settings" element={<Settings currentUser={CURRENT_USER} />} />
-            
-            {/* Success Route for Maze */}
-            <Route path="/success" element={<SuccessPage />} />
           </Routes>
         </div>
 
-        {/* Bottom Navigation (Hidden on Success Page) */}
-        {!location.pathname.includes('success') && (
+        {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-30 max-w-md mx-auto">
           <div className="flex justify-around items-center h-16 pb-2">
             <Link 
@@ -237,7 +216,6 @@ const App = () => {
             </Link>
           </div>
         </nav>
-        )}
       </main>
       
     </div>

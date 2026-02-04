@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Baby, Milk, Moon, Clock, ChevronRight, MoreHorizontal, CheckCircle2, ClipboardList, ArrowRight, Hourglass, CheckSquare, Send, Pencil, XCircle, Plus, Zap } from 'lucide-react';
+import { Baby, Milk, Moon, Clock, ChevronRight, MoreHorizontal, CheckCircle2, ClipboardList, ArrowRight, Hourglass, CheckSquare, Send, Pencil, XCircle, Plus, Zap, X } from 'lucide-react';
 import { User, Log, LogType, LogSubType, Mission, ShiftReport } from '../types';
 import { format } from 'date-fns';
 import CaregiverModal from './CaregiverModal';
@@ -38,8 +38,12 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [shiftDuration, setShiftDuration] = useState(0);
   const [showAllLogs, setShowAllLogs] = useState(false);
   
-  // Unified Card Tab State: 'sent' or 'received'
-  const [handoverTab, setHandoverTab] = useState<'sent' | 'received'>('received');
+  // Tab state synced with URL
+  const tabParam = searchParams.get('tab') as 'sent' | 'received' | null;
+  const [handoverTab, setHandoverTab] = useState<'sent' | 'received'>(tabParam || 'received');
+
+  // Success Toast state from URL
+  const showSuccessToast = searchParams.get('toast') === 'success';
 
   // URL-driven Modals
   const actionParam = searchParams.get('action');
@@ -54,7 +58,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   // UX Logic: Is the current user on duty?
   const isMeOnDuty = currentUser.isDuty;
   
-  // Mock Users List for Modal
+  // Mock Users for Demo
   const grandmaUser: User = { 
       id: 'u3', 
       name: '할머니', 
@@ -73,14 +77,33 @@ const Dashboard: React.FC<DashboardProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Update handover tab based on recent activity when loaded
+  // Sync tab state with URL
   useEffect(() => {
-      if (recentReport?.authorName === currentUser.name) {
-          setHandoverTab('sent');
+      if (tabParam) {
+          setHandoverTab(tabParam);
       } else {
-          setHandoverTab('received');
+          // Default logic if no param
+          if (recentReport?.authorName === currentUser.name) {
+             // If I just sent a report, default to sent? 
+             // But let's stick to URL param as source of truth if possible.
+          }
       }
-  }, [recentReport, currentUser.name]);
+  }, [tabParam, recentReport, currentUser.name]);
+
+  const handleTabChange = (tab: 'sent' | 'received') => {
+      setHandoverTab(tab);
+      setSearchParams(prev => {
+          prev.set('tab', tab);
+          return prev;
+      });
+  };
+
+  const handleCloseToast = () => {
+      setSearchParams(prev => {
+          prev.delete('toast');
+          return prev;
+      });
+  };
 
   const formatDuration = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -243,7 +266,7 @@ const Dashboard: React.FC<DashboardProps> = ({
              {/* Custom Tabs - Simple Text Style */}
              <div className="flex border-b border-gray-100 mb-5">
                  <button 
-                    onClick={() => setHandoverTab('received')}
+                    onClick={() => handleTabChange('received')}
                     className={`flex-1 pb-3 text-sm font-bold transition-all relative ${
                         handoverTab === 'received' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
                     }`}
@@ -252,7 +275,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {handoverTab === 'received' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></div>}
                  </button>
                  <button 
-                    onClick={() => setHandoverTab('sent')}
+                    onClick={() => handleTabChange('sent')}
                     className={`flex-1 pb-3 text-sm font-bold transition-all relative ${
                         handoverTab === 'sent' ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
                     }`}
@@ -481,6 +504,26 @@ const Dashboard: React.FC<DashboardProps> = ({
             )}
          </div>
       </div>
+
+      {/* Success Toast Popup */}
+      {showSuccessToast && (
+          <div className="fixed bottom-24 left-5 right-5 z-50 animate-slide-up">
+              <div className="bg-gray-900 text-white p-4 rounded-2xl shadow-xl flex items-center justify-between border border-gray-800">
+                  <div className="flex items-center gap-3">
+                      <div className="bg-lime-400 text-black p-1.5 rounded-full">
+                          <CheckCircle2 size={18} strokeWidth={3} />
+                      </div>
+                      <div>
+                          <p className="font-bold text-sm">인계장 전송 완료!</p>
+                          <p className="text-xs text-gray-400">파트너에게 알림을 보냈습니다.</p>
+                      </div>
+                  </div>
+                  <button onClick={handleCloseToast} className="p-2 text-gray-500 hover:text-white transition-colors">
+                      <X size={16} />
+                  </button>
+              </div>
+          </div>
+      )}
 
       {/* Modals driven by URL Params */}
       <CaregiverModal 
