@@ -1,15 +1,36 @@
 
 import React, { useState } from 'react';
-import { Home, PieChart, Settings as SettingsIcon, Calendar, FileText } from 'lucide-react';
+import { Home, PieChart, Settings as SettingsIcon, Calendar, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Routes, Route, useNavigate, useLocation, Link, Outlet, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import History from './components/History';
 import Settings from './components/Settings';
 import Schedule from './components/Schedule';
+import Teamwork from './components/Teamwork';
 import ShiftModal from './components/ShiftModal';
 import DoctorReportModal from './components/DoctorReportModal';
 import { Log, LogType, LogSubType, ShiftReport, Mission } from './types';
 import { CURRENT_USER, PARTNER_USER, INITIAL_LOGS } from './constants';
+
+// Simple Success Page for Maze Tracking (URL: /#/success)
+const SuccessPage = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div className="w-20 h-20 bg-lime-400 rounded-full flex items-center justify-center mb-6 shadow-lg animate-bounce-slow">
+            <CheckCircle2 size={40} className="text-white" strokeWidth={3} />
+        </div>
+        <h1 className="text-2xl font-black text-gray-900 mb-2">전송 완료!</h1>
+        <p className="text-gray-500 mb-8">성공적으로 인계장을 보냈습니다.</p>
+        <button 
+            onClick={() => navigate('/home')}
+            className="w-full max-w-xs bg-black text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform"
+        >
+            홈으로 돌아가기
+        </button>
+    </div>
+  );
+};
 
 const App = () => {
   const navigate = useNavigate();
@@ -19,14 +40,22 @@ const App = () => {
   // Store the most recent shift report to display on Dashboard
   const [recentReport, setRecentReport] = useState<ShiftReport | null>(null);
   
-  // Initial Mock Mission from Partner
+  // Initial Mock Mission from Grandma (Updated)
   const [activeMissions, setActiveMissions] = useState<Mission[]>([
       {
           id: 'm1',
           text: '저녁 약 먹이기 (해열제)',
           time: '19:00',
           isCompleted: false,
-          assignerName: PARTNER_USER.name,
+          assignerName: '할머니',
+          memo: ''
+      },
+      {
+          id: 'm2',
+          text: '목욕 후 로션 꼼꼼히 바르기',
+          time: '20:30',
+          isCompleted: false,
+          assignerName: '할머니',
           memo: ''
       }
   ]);
@@ -36,6 +65,7 @@ const App = () => {
   let activeTab = 'dashboard';
   if (currentPath.includes('schedule')) activeTab = 'schedule';
   else if (currentPath.includes('history')) activeTab = 'history';
+  else if (currentPath.includes('teamwork')) activeTab = 'teamwork';
   else if (currentPath.includes('settings')) activeTab = 'settings';
   // Include 'home' in dashboard tab logic
   else if (currentPath.includes('report') || currentPath.includes('shift') || currentPath.includes('home')) activeTab = 'dashboard';
@@ -73,8 +103,8 @@ const App = () => {
     
     console.log("Shift Report:", reportWithAuthor);
 
-    // Maze Tracking: Navigate to a success state URL
-    navigate('/home?report_status=success');
+    // Maze Tracking: Navigate to a explicit success URL
+    navigate('/success');
   };
 
   const handleToggleMission = (id: string) => {
@@ -142,6 +172,11 @@ const App = () => {
             </Route>
 
             <Route path="/schedule" element={<Schedule />} />
+            
+            <Route path="/teamwork" element={
+                <Teamwork currentUser={CURRENT_USER} partner={PARTNER_USER} />
+            } />
+
             <Route path="/history" element={
                 <History 
                     logs={logs} 
@@ -151,10 +186,14 @@ const App = () => {
                 />
             } />
             <Route path="/settings" element={<Settings currentUser={CURRENT_USER} />} />
+            
+            {/* Success Route for Maze */}
+            <Route path="/success" element={<SuccessPage />} />
           </Routes>
         </div>
 
-        {/* Bottom Navigation */}
+        {/* Bottom Navigation (Hidden on Success Page) */}
+        {!location.pathname.includes('success') && (
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-30 max-w-md mx-auto">
           <div className="flex justify-around items-center h-16 pb-2">
             <Link 
@@ -174,6 +213,14 @@ const App = () => {
             </Link>
 
             <Link 
+              to="/teamwork"
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'teamwork' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`}
+            >
+              <Sparkles size={24} strokeWidth={activeTab === 'teamwork' ? 2.5 : 2} />
+              <span className="text-[10px] font-bold">팀워크</span>
+            </Link>
+
+            <Link 
               to="/history"
               className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'history' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`}
             >
@@ -190,6 +237,7 @@ const App = () => {
             </Link>
           </div>
         </nav>
+        )}
       </main>
       
     </div>

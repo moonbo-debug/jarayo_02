@@ -37,8 +37,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const [shiftDuration, setShiftDuration] = useState(0);
   const [showAllLogs, setShowAllLogs] = useState(false);
-  const [memoInputs, setMemoInputs] = useState<Record<string, string>>({});
-  const [isEditingMemo, setIsEditingMemo] = useState<Record<string, boolean>>({});
   
   // Unified Card Tab State: 'sent' or 'received'
   const [handoverTab, setHandoverTab] = useState<'sent' | 'received'>('received');
@@ -114,19 +112,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       onAddLog(data.type, data.subType, data.value, data.note);
   };
 
-  const handleMemoSubmit = (id: string) => {
-      if (memoInputs[id]?.trim()) {
-          onUpdateMissionMemo(id, memoInputs[id]);
-          setMemoInputs(prev => ({ ...prev, [id]: '' }));
-          setIsEditingMemo(prev => ({ ...prev, [id]: false }));
-      }
-  };
-
-  const startEditingMemo = (id: string, currentMemo: string) => {
-      setMemoInputs(prev => ({ ...prev, [id]: currentMemo }));
-      setIsEditingMemo(prev => ({ ...prev, [id]: true }));
-  };
-
   const handleEditProfile = () => {
       alert("프로필 수정 화면으로 이동합니다 (준비중)");
   };
@@ -149,13 +134,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   // Helper component for rendering a single mission item (used in both views)
   const renderMissionItem = (mission: Mission, index: number) => {
-      const hasInputText = (memoInputs[mission.id] || '').length > 0;
-      const isEditing = isEditingMemo[mission.id];
-
       return (
         <div key={mission.id} className={`bg-white rounded-2xl p-4 border transition-all ${mission.isCompleted ? 'border-gray-200 bg-gray-50' : 'border-gray-200 shadow-sm'}`}>
             {/* Mission Header & Checkbox */}
-            <div className="flex items-start gap-3 mb-2">
+            <div className="flex items-start gap-3">
                 <button 
                     onClick={() => handleMissionClick(mission.id, mission.isCompleted)}
                     className={`mt-0.5 w-6 h-6 rounded-full flex items-center justify-center border transition-all shrink-0 active:scale-90 ${mission.isCompleted ? 'bg-black border-black' : 'border-gray-300 bg-white hover:border-black'}`}
@@ -171,64 +153,6 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {mission.time}
                     </div>
                 </div>
-            </div>
-            
-            {/* Memo Section */}
-            <div className="pl-9">
-                {mission.memo && !isEditing ? (
-                    <div className="bg-gray-50 p-2.5 rounded-xl text-xs text-gray-700 border border-gray-100 flex justify-between items-start group">
-                        <span className="leading-relaxed break-all">
-                            <span className="font-bold mr-1 text-gray-900">Note:</span> 
-                            {mission.memo}
-                        </span>
-                        <button 
-                            onClick={() => startEditingMemo(mission.id, mission.memo || '')}
-                            className="text-gray-400 hover:text-black p-1 -mr-1 -mt-1 rounded-md transition-colors"
-                        >
-                            <Pencil size={12} />
-                        </button>
-                    </div>
-                ) : (
-                    <div className="flex gap-2">
-                        <div className="flex-1 relative">
-                            <input 
-                                type="text" 
-                                placeholder={mission.isCompleted ? "완료 특이사항 기록..." : "메모 남기기..."}
-                                value={memoInputs[mission.id] || ''}
-                                onChange={(e) => setMemoInputs({...memoInputs, [mission.id]: e.target.value})}
-                                className={`w-full text-xs rounded-lg px-3 py-2.5 focus:outline-none transition-all ${
-                                    mission.isCompleted 
-                                    ? 'bg-white border border-gray-200 focus:border-black text-gray-600' 
-                                    : 'bg-gray-50 border border-transparent focus:bg-white focus:border-black focus:ring-0'
-                                }`}
-                                onKeyDown={(e) => e.key === 'Enter' && handleMemoSubmit(mission.id)}
-                                autoFocus={isEditing}
-                            />
-                            {isEditing && (
-                                <button 
-                                    onClick={() => {
-                                        setIsEditingMemo(prev => ({...prev, [mission.id]: false}));
-                                        setMemoInputs(prev => ({...prev, [mission.id]: mission.memo || ''}));
-                                    }}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    <XCircle size={14} />
-                                </button>
-                            )}
-                        </div>
-                        <button 
-                            onClick={() => handleMemoSubmit(mission.id)}
-                            disabled={!hasInputText}
-                            className={`px-3 py-2 rounded-lg flex items-center gap-1 text-xs font-bold transition-all shadow-sm ${
-                                hasInputText 
-                                ? 'bg-black text-white hover:bg-gray-800 active:scale-95' 
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            }`}
-                        >
-                            {hasInputText ? <Send size={12} /> : <Plus size={14} />}
-                        </button>
-                    </div>
-                )}
             </div>
         </div>
       );

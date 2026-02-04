@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Settings, Plus, UserPlus, X, Check } from 'lucide-react';
 import { ScheduleItem } from '../types';
 
@@ -56,22 +57,69 @@ const INITIAL_SCHEDULE: ScheduleItem[] = [
 ];
 
 const Schedule: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [schedule, setSchedule] = useState<ScheduleItem[]>(INITIAL_SCHEDULE);
+  
+  // Manage Editing State via URL + Local State
+  const editingId = searchParams.get('edit');
   const [editingItem, setEditingItem] = useState<ScheduleItem | null>(null);
+
   const [selectedDateIndex, setSelectedDateIndex] = useState(1); 
   
   // Fixed Demo Time
   const CURRENT_TIME_STRING = "09:00";
 
+  // Effect to sync URL param to Local State
+  useEffect(() => {
+    if (editingId) {
+        // Check if it's an existing item
+        const existing = schedule.find(i => i.id === editingId);
+        if (existing) {
+            setEditingItem(existing);
+        } else if (editingId.startsWith('new_')) {
+            // It's a new item we started creating. 
+            // If we already have it in local state, keep it. If not, initialize.
+            if (!editingItem || editingItem.id !== editingId) {
+                 const startTime = searchParams.get('start') || '09:00';
+                 setEditingItem({
+                    id: editingId,
+                    userId: 'u1',
+                    userName: '아빠',
+                    userAvatar: USERS_MAP['아빠'].avatar,
+                    startTime: startTime,
+                    endTime:  (parseInt(startTime.split(':')[0]) + 1).toString().padStart(2, '0') + ":00",
+                    type: 'care',
+                    description: '새 일정',
+                 });
+            }
+        }
+    } else {
+        setEditingItem(null);
+    }
+  }, [editingId, schedule]);
+
   // Handlers
-  const handleEdit = (item: ScheduleItem) => {
-      setEditingItem({ ...item });
+  const openEdit = (item: ScheduleItem) => {
+      setEditingItem(item); // Optimistic update
+      setSearchParams(prev => {
+          prev.set('edit', item.id);
+          return prev;
+      });
+  };
+
+  const closeEdit = () => {
+      setSearchParams(prev => {
+          prev.delete('edit');
+          prev.delete('start');
+          return prev;
+      });
+      setEditingItem(null);
   };
 
   const handleDelete = () => {
     if (editingItem) {
         setSchedule(prev => prev.filter(i => i.id !== editingItem.id));
-        setEditingItem(null);
+        closeEdit();
     }
   };
 
@@ -85,22 +133,17 @@ const Schedule: React.FC = () => {
                 return [...prev, editingItem].sort((a, b) => a.startTime.localeCompare(b.startTime));
             }
         });
-        setEditingItem(null);
+        closeEdit();
     }
   };
 
   const handleCreateNew = (startTime: string) => {
-      const newItem: ScheduleItem = {
-          id: Date.now().toString(),
-          userId: 'u1',
-          userName: '아빠',
-          userAvatar: USERS_MAP['아빠'].avatar,
-          startTime: startTime,
-          endTime:  (parseInt(startTime.split(':')[0]) + 1).toString().padStart(2, '0') + ":00",
-          type: 'care',
-          description: '새 일정',
-      };
-      setEditingItem(newItem);
+      const newId = `new_${Date.now()}`;
+      setSearchParams(prev => {
+          prev.set('edit', newId);
+          prev.set('start', startTime);
+          return prev;
+      });
   };
 
   const handleUserChange = (name: string) => {
@@ -181,7 +224,7 @@ const Schedule: React.FC = () => {
             };
 
             return (
-                <div key={item.id} className="flex mb-8 relative group animate-fade-in" onClick={() => handleEdit(item)}>
+                <div key={item.id} className="flex mb-8 relative group animate-fade-in" onClick={() => openEdit(item)}>
                     {/* Time Column */}
                     <div className="w-14 text-right pr-4 pt-1 shrink-0">
                         <span className="text-xs font-mono font-bold text-gray-400 block">{item.startTime}</span>
@@ -255,7 +298,7 @@ const Schedule: React.FC = () => {
                     <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                         일정 상세 편집
                     </h3>
-                    <button onClick={() => setEditingItem(null)} className="p-2 bg-gray-50 rounded-full text-gray-500 hover:bg-gray-100 hover:text-black">
+                    <button onClick={closeEdit} className="p-2 bg-gray-50 rounded-full text-gray-500 hover:bg-gray-100 hover:text-black">
                         <X size={20}/>
                     </button>
                 </div>

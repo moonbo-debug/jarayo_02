@@ -136,15 +136,15 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
       { id: 'high', label: '쌩쌩함 😄' }
   ];
 
-  const moodOptions: { id: BabyMood, label: string }[] = [
-    { id: 'happy', label: '🥰 좋음' },
-    { id: 'energetic', label: '🤸 활발' },
-    { id: 'calm', label: '🧘 평온' },
-    { id: 'hungry', label: '🍼 배고픔' },
-    { id: 'sleeping', label: '😴 수면 중' },
-    { id: 'fussy', label: '😫 찡찡' },
-    { id: 'sick', label: '🤒 아픔' },
-    { id: 'poop', label: '💩 응가함' },
+  const moodOptions: { id: BabyMood, label: string, emoji: string }[] = [
+    { id: 'happy', label: '좋음', emoji: '🥰' },
+    { id: 'energetic', label: '활발', emoji: '🤸' },
+    { id: 'calm', label: '평온', emoji: '🧘' },
+    { id: 'hungry', label: '배고픔', emoji: '🍼' },
+    { id: 'sleeping', label: '수면중', emoji: '😴' },
+    { id: 'fussy', label: '찡찡', emoji: '😫' },
+    { id: 'sick', label: '아픔', emoji: '🤒' },
+    { id: 'poop', label: '응가함', emoji: '💩' },
   ];
 
   return (
@@ -164,21 +164,22 @@ const ShiftModal: React.FC<ShiftModalProps> = ({ isOpen, onClose, onSubmit }) =>
           {/* 1. Baby Mood */}
           <section>
              <h3 className="text-sm font-bold text-gray-900 mb-3">현재 튼튼이 기분</h3>
-             <div className="grid grid-cols-2 gap-2">
+             <div className="grid grid-cols-4 gap-2">
                 {moodOptions.map((option) => {
                     const isSelected = moodsFromUrl.includes(option.id);
                     return (
                         <button 
                             key={option.id}
                             onClick={() => toggleBabyMood(option.id)}
-                            className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                            className={`flex flex-col items-center justify-center aspect-square p-2 rounded-xl border transition-all ${
                                 isSelected 
-                                ? 'bg-black text-white border-black' 
+                                ? 'bg-black text-white border-black shadow-md' 
                                 : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
                             }`}
                         >
-                            <span className="text-sm font-bold">{option.label}</span>
-                            {isSelected && <Check size={16} className="text-lime-400" strokeWidth={3} />}
+                            <span className="text-2xl mb-1">{option.emoji}</span>
+                            <span className="text-xs font-bold">{option.label}</span>
+                            {isSelected && <div className="absolute top-1 right-1 w-2 h-2 bg-lime-400 rounded-full"></div>}
                         </button>
                     );
                 })}
