@@ -58,10 +58,24 @@ const INITIAL_SCHEDULE: ScheduleItem[] = [
 
 const Schedule: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(INITIAL_SCHEDULE);
+  
+  // Initialize schedule based on URL params to persist state across navigation
+  const [schedule, setSchedule] = useState<ScheduleItem[]>(() => {
+      const updatedId = searchParams.get('updated');
+      if (updatedId === 's3') {
+          return INITIAL_SCHEDULE.map(item => 
+              item.id === 's3' 
+              ? { ...item, userId: 'u3', userName: '할머니', userAvatar: USERS_MAP['할머니'].avatar } 
+              : item
+          );
+      }
+      return INITIAL_SCHEDULE;
+  });
   
   // Manage Editing State via URL + Local State
   const editingId = searchParams.get('edit');
+  const assigneeParam = searchParams.get('assignee');
+  const updatedParam = searchParams.get('updated');
   const [editingItem, setEditingItem] = useState<ScheduleItem | null>(null);
 
   const [selectedDateIndex, setSelectedDateIndex] = useState(1); 
@@ -75,7 +89,22 @@ const Schedule: React.FC = () => {
         // Check if it's an existing item
         const existing = schedule.find(i => i.id === editingId);
         if (existing) {
-            setEditingItem(existing);
+            // Maze Tracking Override: If URL has assignee, force that state
+             let itemToSet = existing;
+             if (assigneeParam) {
+                 const userEntry = Object.entries(USERS_MAP).find(([key, val]) => val.id === assigneeParam);
+                 if (userEntry) {
+                     itemToSet = {
+                         ...existing,
+                         userName: userEntry[0],
+                         userId: userEntry[1].id,
+                         userAvatar: userEntry[1].avatar
+                     };
+                 }
+             }
+             // Only update if ID matches or we are forcing an update via assignee param
+             setEditingItem(itemToSet);
+
         } else if (editingId.startsWith('new_')) {
             // It's a new item we started creating. 
             // If we already have it in local state, keep it. If not, initialize.
@@ -96,12 +125,25 @@ const Schedule: React.FC = () => {
     } else {
         setEditingItem(null);
     }
-  }, [editingId, schedule]);
+  }, [editingId, assigneeParam, schedule]);
+
+  // Effect: React to 'updated' param changes (e.g. immediately after save)
+  useEffect(() => {
+      if (updatedParam === 's3') {
+          setSchedule(prev => prev.map(item => 
+              item.id === 's3' 
+              ? { ...item, userId: 'u3', userName: '할머니', userAvatar: USERS_MAP['할머니'].avatar } 
+              : item
+          ));
+      }
+  }, [updatedParam]);
+
 
   // Handlers
   const openEdit = (item: ScheduleItem) => {
-      setEditingItem(item); // Optimistic update
+      // Clean previous update params when opening new edit
       setSearchParams(prev => {
+          prev.delete('updated'); 
           prev.set('edit', item.id);
           return prev;
       });
@@ -111,6 +153,7 @@ const Schedule: React.FC = () => {
       setSearchParams(prev => {
           prev.delete('edit');
           prev.delete('start');
+          prev.delete('assignee');
           return prev;
       });
       setEditingItem(null);
@@ -133,7 +176,16 @@ const Schedule: React.FC = () => {
                 return [...prev, editingItem].sort((a, b) => a.startTime.localeCompare(b.startTime));
             }
         });
-        closeEdit();
+        
+        // Maze Tracking: Close modal but set 'updated' param to distinguish result screen
+        setSearchParams(prev => {
+            prev.delete('edit');
+            prev.delete('start');
+            prev.delete('assignee');
+            prev.set('updated', editingItem.id); 
+            return prev;
+        });
+        setEditingItem(null);
     }
   };
 
@@ -148,11 +200,19 @@ const Schedule: React.FC = () => {
 
   const handleUserChange = (name: string) => {
       if (editingItem && USERS_MAP[name]) {
+          const newUserId = USERS_MAP[name].id;
+          
           setEditingItem({
               ...editingItem,
               userName: name,
-              userId: USERS_MAP[name].id,
+              userId: newUserId,
               userAvatar: USERS_MAP[name].avatar
+          });
+
+          // Maze Tracking: Update URL to show a specific user is selected
+          setSearchParams(prev => {
+              prev.set('assignee', newUserId);
+              return prev;
           });
       }
   };

@@ -81,14 +81,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   useEffect(() => {
       if (tabParam) {
           setHandoverTab(tabParam);
-      } else {
-          // Default logic if no param
-          if (recentReport?.authorName === currentUser.name) {
-             // If I just sent a report, default to sent? 
-             // But let's stick to URL param as source of truth if possible.
-          }
       }
-  }, [tabParam, recentReport, currentUser.name]);
+  }, [tabParam]);
 
   const handleTabChange = (tab: 'sent' | 'received') => {
       setHandoverTab(tab);
@@ -143,6 +137,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   const handleMissionClick = (id: string, currentStatus: boolean) => {
       onToggleMission(id);
       setSearchParams(prev => {
+          // CRITICAL FIX: Explicitly persist current tab to prevent jumping to default
+          prev.set('tab', handoverTab); 
           prev.set('mission_status', !currentStatus ? 'completed' : 'pending');
           return prev;
       });

@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Calendar, Moon, Milk, Baby, AlertCircle, Plus, Pencil, Share, FileText, X, Save, ClipboardList, Trash2, Sparkles, FileCheck, CheckCircle2, Check } from 'lucide-react';
 
 interface DoctorReportModalProps {
@@ -13,6 +14,8 @@ type HealthStat = {
 };
 
 const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ isOpen, onClose }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   // Mode: 'edit' (Writing) vs 'preview' (Completed)
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
@@ -25,8 +28,12 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ isOpen, onClose }
   const [isEditingOverallMemo, setIsEditingOverallMemo] = useState(false);
   const [editingSection, setEditingSection] = useState<'sleep' | 'feeding' | 'poop' | null>(null);
 
-  // Question Input Modal State
-  const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false);
+  // Question Input Modal State - Controlled by URL
+  // 'overlay=question' determines visibility
+  const isAddQuestionOpen = searchParams.get('overlay') === 'question';
+  // Check if a question was previously added via URL state
+  const isQuestionAddedState = searchParams.get('status') === 'question_added';
+  
   const [newQuestionTitle, setNewQuestionTitle] = useState('독감 예방접종 시기가 궁금합니다.');
   const [newQuestionMemo, setNewQuestionMemo] = useState('');
 
@@ -41,6 +48,37 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ isOpen, onClose }
     { id: 3, text: '비타민D는 계속 먹여야 하나요?', memo: '현재 드롭형 2방울 섭취 중', isAi: true },
   ]);
 
+  // Restore added question if URL indicates it was added
+  useEffect(() => {
+    if (isQuestionAddedState) {
+         setQuestions(prev => {
+             // Avoid duplicate addition on re-renders
+             if (prev.some(q => q.text.includes('독감'))) return prev;
+             
+             return [...prev, {
+                 id: 4,
+                 text: '독감 예방접종 시기가 궁금합니다.',
+                 memo: '', // Can't restore full memo from just a flag, but this is sufficient for demo
+                 isAi: false
+             }];
+         });
+    }
+  }, [isQuestionAddedState]);
+
+  const handleOpenAddQuestion = () => {
+      setSearchParams(prev => {
+          prev.set('overlay', 'question');
+          return prev;
+      });
+  };
+
+  const handleCloseAddQuestion = () => {
+      setSearchParams(prev => {
+          prev.delete('overlay');
+          return prev;
+      });
+  };
+
   const handleAddQuestionSubmit = () => {
       const newId = Math.max(...questions.map(q => q.id), 0) + 1;
       const newQuestion = {
@@ -50,9 +88,16 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ isOpen, onClose }
           isAi: false
       };
       setQuestions([...questions, newQuestion]);
-      setIsAddQuestionOpen(false);
+      
       setNewQuestionTitle('');
       setNewQuestionMemo('');
+      
+      // Update URL to reflect "added" state for Maze tracking
+      setSearchParams(prev => {
+          prev.delete('overlay');
+          prev.set('status', 'question_added');
+          return prev;
+      });
   };
 
   const removeQuestion = (id: number, e: React.MouseEvent) => {
@@ -481,7 +526,7 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ isOpen, onClose }
                             <p className="text-[10px] text-gray-500 mt-1">아이 상태를 분석하여 생성된 질문입니다.</p>
                         </div>
                         <button 
-                            onClick={() => setIsAddQuestionOpen(true)}
+                            onClick={handleOpenAddQuestion}
                             className="text-black text-sm font-bold flex items-center gap-1 hover:bg-gray-100 px-2 py-1 rounded border border-gray-200"
                         >
                             <Plus size={14} /> 질문 추가
@@ -570,7 +615,7 @@ const DoctorReportModal: React.FC<DoctorReportModalProps> = ({ isOpen, onClose }
                     </div>
                     <div className="flex gap-3 mt-6">
                         <button 
-                            onClick={() => setIsAddQuestionOpen(false)}
+                            onClick={handleCloseAddQuestion}
                             className="flex-1 py-3 rounded-xl font-bold text-gray-500 bg-gray-100 hover:bg-gray-200"
                         >
                             취소

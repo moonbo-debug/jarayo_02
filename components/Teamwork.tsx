@@ -35,15 +35,16 @@ interface Badge {
 const Teamwork: React.FC<TeamworkProps> = ({ currentUser, partner }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   
+  // Derive UI state from URL Params for Maze tracking
+  const selectedBadgeId = searchParams.get('badge');
+  const isMsgModalOpen = searchParams.get('view') === 'message';
+  const collectedParam = searchParams.get('collected');
+
   // --- STATE ---
   const [currentXP, setCurrentXP] = useState(850);
   const maxXP = 1200;
   const teamLevel = 12;
   const [collectedCombos, setCollectedCombos] = useState<string[]>([]);
-  
-  // Derive UI state from URL Params for Maze tracking
-  const selectedBadgeId = searchParams.get('badge');
-  const isMsgModalOpen = searchParams.get('view') === 'message';
 
   // Mock Users for Demo
   const grandma: User = { id: 'u3', name: '할머니', role: 'Mom', isDuty: false, batteryLevel: 90, avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Grandma' };
@@ -75,12 +76,30 @@ const Teamwork: React.FC<TeamworkProps> = ({ currentUser, partner }) => {
 
   const selectedBadge = activeBadges.find(b => b.id.toString() === selectedBadgeId) || null;
 
+  // Sync collected state with URL
+  useEffect(() => {
+    if (collectedParam && !collectedCombos.includes(collectedParam)) {
+        setCollectedCombos(prev => [...prev, collectedParam]);
+        // Add score visually if loading from URL
+        const combo = recentCombos.find(c => c.id === collectedParam);
+        if (combo) {
+             setCurrentXP(prev => Math.min(prev + combo.score, maxXP));
+        }
+    }
+  }, [collectedParam]);
+
   // --- HANDLERS ---
   const handleCollectXP = (comboId: string, score: number) => {
       if (collectedCombos.includes(comboId)) return;
       
       setCollectedCombos(prev => [...prev, comboId]);
       setCurrentXP(prev => Math.min(prev + score, maxXP));
+      
+      // Update URL for Maze tracking: collected=c1
+      setSearchParams(prev => {
+          prev.set('collected', comboId);
+          return prev;
+      });
   };
 
   const handleOpenBadge = (id: number) => {
@@ -93,6 +112,8 @@ const Teamwork: React.FC<TeamworkProps> = ({ currentUser, partner }) => {
   const handleCloseBadge = () => {
       setSearchParams(prev => {
           prev.delete('badge');
+          // Add param to track that a badge has been viewed (Maze State)
+          prev.set('status', 'badge_viewed');
           return prev;
       });
   };
