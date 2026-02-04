@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Home, PieChart, Settings as SettingsIcon, Calendar } from 'lucide-react';
+import { Home, PieChart, Settings as SettingsIcon, Calendar, FileText } from 'lucide-react';
 import { Routes, Route, useNavigate, useLocation, Link, Outlet, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import History from './components/History';
@@ -15,6 +15,9 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [logs, setLogs] = useState<Log[]>(INITIAL_LOGS);
+  
+  // Store the most recent shift report to display on Dashboard
+  const [recentReport, setRecentReport] = useState<ShiftReport | null>(null);
   
   // Initial Mock Mission from Partner
   const [activeMissions, setActiveMissions] = useState<Mission[]>([
@@ -53,38 +56,22 @@ const App = () => {
   };
 
   const handleShiftSubmit = (report: ShiftReport) => {
-    // 1. Process Missions
+    // 1. Process Missions (Inject assigner as ME)
     const newMissions = report.missions.map(m => ({
         ...m,
-        assignerName: CURRENT_USER.name // Sent by me
+        assignerName: CURRENT_USER.name 
     }));
     
-    // Demo: Refresh active missions with the new ones
-    setActiveMissions(newMissions);
+    // Update activeMissions demo logic
+    if (newMissions.length > 0 || report.missions.length === 0) {
+        // In a real app, this logic would be more complex to handle bi-directional state.
+    }
 
-    console.log("Shift Report:", report);
+    // 2. Save Report to State (Inject author as ME)
+    const reportWithAuthor = { ...report, authorName: CURRENT_USER.name };
+    setRecentReport(reportWithAuthor);
     
-    const moodMap: Record<string, string> = {
-        happy: '🥰 좋음',
-        fussy: '😫 찡찡',
-        sleeping: '😴 수면중',
-        sick: '🤒 아픔',
-        hungry: '🍼 배고픔',
-        energetic: '🤸 활발',
-        calm: '🧘 평온',
-        poop: '💩 응가함'
-    };
-
-    const moodsText = report.babyMoods.map(m => moodMap[m]).join(', ');
-    const missionsText = report.missions.map(m => `- ${m.time} ${m.text}`).join('\n');
-
-    alert(
-        `[인계 완료] 리포트가 전송되었습니다!\n\n` +
-        `👶 아기 상태: ${moodsText || '기록 없음'}\n` +
-        `🚨 전달 미션:\n${missionsText || '없음'}\n` +
-        `📝 요약: ${report.autoBriefing}\n` +
-        `💬 한마디: ${report.wishlist}`
-    );
+    console.log("Shift Report:", reportWithAuthor);
 
     // Maze Tracking: Navigate to a success state URL
     navigate('/home?report_status=success');
@@ -102,6 +89,10 @@ const App = () => {
       ));
   };
 
+  const handleEditReport = (report: ShiftReport) => {
+      navigate('/shift', { state: { reportData: report } });
+  };
+
   // Layout wrapper to keep Dashboard mounted while modals are open
   const DashboardLayout = () => (
     <>
@@ -110,21 +101,23 @@ const App = () => {
         partner={PARTNER_USER}
         logs={logs}
         activeMissions={activeMissions}
+        recentReport={recentReport}
         onAddLog={handleAddLog}
         onOpenShiftModal={() => navigate('/shift')}
         onToggleMission={handleToggleMission}
         onUpdateMissionMemo={handleUpdateMissionMemo}
         onOpenDoctorReport={() => navigate('/report')}
+        onEditReport={handleEditReport}
       />
       <Outlet />
     </>
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 text-gray-900 font-sans selection:bg-indigo-100">
+    <div className="min-h-screen bg-[#F9FAFB] text-gray-900 font-sans selection:bg-lime-100">
       
       {/* Main Content Area */}
-      <main className="max-w-md mx-auto min-h-screen bg-white sm:shadow-xl sm:border-x sm:border-gray-100 relative">
+      <main className="max-w-md mx-auto min-h-screen bg-[#F9FAFB] sm:shadow-xl sm:border-x sm:border-gray-200 relative">
         <div className="pt-2">
           <Routes>
             {/* Dashboard Routes with Layout for Persistence */}
@@ -166,7 +159,7 @@ const App = () => {
           <div className="flex justify-around items-center h-16 pb-2">
             <Link 
               to="/home"
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'dashboard' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'dashboard' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`}
             >
               <Home size={24} strokeWidth={activeTab === 'dashboard' ? 2.5 : 2} />
               <span className="text-[10px] font-bold">홈</span>
@@ -174,7 +167,7 @@ const App = () => {
             
             <Link 
               to="/schedule"
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'schedule' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'schedule' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`}
             >
               <Calendar size={24} strokeWidth={activeTab === 'schedule' ? 2.5 : 2} />
               <span className="text-[10px] font-bold">일정</span>
@@ -182,15 +175,15 @@ const App = () => {
 
             <Link 
               to="/history"
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'history' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'history' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`}
             >
-              <PieChart size={24} strokeWidth={activeTab === 'history' ? 2.5 : 2} />
-              <span className="text-[10px] font-bold">통계</span>
+              <FileText size={24} strokeWidth={activeTab === 'history' ? 2.5 : 2} />
+              <span className="text-[10px] font-bold">리포트</span>
             </Link>
 
             <Link 
               to="/settings"
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === 'settings' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'settings' ? 'text-gray-900' : 'text-gray-300 hover:text-gray-500'}`}
             >
               <SettingsIcon size={24} strokeWidth={activeTab === 'settings' ? 2.5 : 2} />
               <span className="text-[10px] font-bold">설정</span>

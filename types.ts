@@ -1,3 +1,4 @@
+
 export type ViewState = 'dashboard' | 'schedule' | 'history' | 'settings';
 
 export type LogType = 'diaper' | 'feeding' | 'sleep' | 'health' | 'activity' | 'shift' | 'temp' | 'play';
@@ -46,7 +47,8 @@ export interface ShiftReport {
   wishlist: string; // Optional extra message
   autoBriefing: string;
   timestamp: Date;
-  isEarlyExit?: boolean; 
+  isEarlyExit?: boolean;
+  authorName?: string; // 작성자 이름 추가
 }
 
 export interface User {
