@@ -53,11 +53,28 @@
 
 ---
 
+## 🎬 하네스 2: Kling.ai 영상 생성
+
+**목표:** Kling.ai 웹사이트에서 프롬프트 기반 AI 영상을 자동으로 순차 생성
+
+**트리거:** Kling.ai 영상 생성 관련 요청 시 `kling-video-generator` 스킬을 사용합니다.
+또는 `python3 scripts/kling_video_generator.py`로 직접 실행 가능합니다.
+
+**사용 방법:**
+```bash
+python3 scripts/kling_video_generator.py
+```
+
+자세한 가이드: [`KLING_GUIDE.md`](KLING_GUIDE.md)
+
+---
+
 ## 📝 변경 이력
 
 | 날짜 | 변경 내용 | 대상 | 사유 |
 |------|----------|------|------|
-| 2026-04-11 | 초기 구성 | 전체 (에이전트 3개, 스킬 3개) | AI 영상 제작 하네스 최초 구축 |
+| 2026-04-11 | AI 영상 제작 하네스 구축 | 전체 (에이전트 3개, 스킬 3개) | AI 영상 제작 하네스 최초 구축 |
+| 2026-04-11 | Kling.ai 자동화 하네스 추가 | agents/kling-orchestrator.md, skills/kling-video-generator/, scripts/kling_video_generator.py | Kling.ai에서 프롬프트 기반 영상 순차 생성 |
 
 ---
 
