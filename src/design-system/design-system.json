@@ -1,0 +1,174 @@
+{
+  "designSystem": {
+    "metadata": {
+      "name": "Stacks Design System",
+      "version": "1.0.0",
+      "lastUpdated": "2026-04-20",
+      "description": "Complete design system with tokens and component definitions extracted from Figma",
+      "author": "AI Design System Generator",
+      "license": "MIT"
+    },
+    "structure": {
+      "tokens": {
+        "typography": "tokens/typography.json",
+        "colors": "tokens/colors.json",
+        "spacing": "tokens/spacing.json",
+        "sizing": "tokens/sizing.json",
+        "borderRadius": "tokens/border-radius.json",
+        "shadows": "tokens/shadows.json",
+        "motion": "tokens/motion.json",
+        "breakpoints": "tokens/breakpoints.json"
+      },
+      "components": {
+        "buttons": "components/buttons.json",
+        "inputs": "components/inputs.json",
+        "cards": "components/cards.json"
+      }
+    },
+    "tokens": {
+      "typography": {
+        "description": "Font families, sizes, weights, and line heights for all text elements",
+        "includes": [
+          "Primary font: DM Sans",
+          "Heading font: Poppins",
+          "Heading styles: Hero, H1-H4",
+          "Body text: Large, Normal, Medium, Small (with bold variants)",
+          "Captions: Caption, Hairline Small/Large",
+          "Button text: Large, Medium, Small"
+        ]
+      },
+      "colors": {
+        "description": "Complete color palette with primitives, semantic tokens, and dark mode support",
+        "includes": [
+          "Primitives: Neutrals, Blues, Reds, Greens, Ambers (10-color ramps)",
+          "Semantic: Primary, Secondary, Tertiary, Success, Warning, Error, Info",
+          "Semantic Tokens: Background, Surface, Text, Border, Feedback",
+          "Interactions: Hover, Active, Focus, Disabled, Overlay",
+          "Dark Mode: Complete dark theme support"
+        ]
+      },
+      "spacing": {
+        "description": "Spacing scale for padding, margins, gaps, and insets",
+        "baseUnit": "4px",
+        "includes": [
+          "Tokens from 0 to 96 (0px - 384px)",
+          "Semantic shortcuts: xs, sm, md, lg, xl, 2xl, 3xl, 4xl",
+          "Specific scales: inset, gap, padding, margin"
+        ]
+      },
+      "sizing": {
+        "description": "Size tokens for width, height, and max-width constraints",
+        "includes": [
+          "Component sizes: xs to 6xl",
+          "Width presets: min, xs through 4xl, full, screen",
+          "Height presets: xs through 3xl, full, screen",
+          "Max-width scale: xs through 7xl, full"
+        ]
+      },
+      "borderRadius": {
+        "description": "Border radius scale from sharp to fully rounded",
+        "includes": [
+          "Scale: none, xs, sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl, full",
+          "Component-specific: button, input, card, modal, chip, avatar, etc.",
+          "Semantic: small, medium, large, extraLarge, round, circular"
+        ]
+      },
+      "shadows": {
+        "description": "Elevation system with component-specific shadows",
+        "includes": [
+          "Elevation levels: none, xs, sm, md, lg, xl, 2xl, inner",
+          "Focus shadows: default, error, success, warning",
+          "Component shadows: button, card, modal, input, popover, tooltip, dropdown"
+        ]
+      },
+      "motion": {
+        "description": "Animation durations, easing functions, and transitions",
+        "includes": [
+          "Durations: instant to slowest (0ms - 700ms)",
+          "Easing: 20+ easing functions (linear through custom curves)",
+          "Transitions: color, background, border, opacity, transform, shadow",
+          "Animations: fadeIn/Out, slideIn/Out, scale, pulse, spin"
+        ]
+      },
+      "breakpoints": {
+        "description": "Responsive design breakpoints and grid settings",
+        "includes": [
+          "Breakpoints: xs, sm, md, lg, xl, 2xl (320px - 1536px)",
+          "Media queries: mobile, tablet, desktop, wide, ultraWide",
+          "Accessibility: reducedMotion, highContrast",
+          "Grid: 4-column (mobile), 8-column (tablet), 12-column (desktop)"
+        ]
+      }
+    },
+    "components": {
+      "button": {
+        "description": "Primary interactive component for user actions",
+        "variants": ["primary", "secondary", "outline", "ghost", "danger"],
+        "sizes": ["xs", "sm", "md", "lg", "xl"],
+        "states": ["default", "hover", "active", "focus", "disabled", "loading"]
+      },
+      "input": {
+        "description": "Text input field for form data entry",
+        "types": ["text", "email", "password", "number", "search"],
+        "variants": ["default", "filled", "flushed"],
+        "sizes": ["sm", "md", "lg"],
+        "states": ["default", "hover", "focus", "disabled", "error", "success"]
+      },
+      "textarea": {
+        "description": "Multi-line text input for longer content",
+        "states": ["default", "focus", "disabled", "error"]
+      },
+      "select": {
+        "description": "Dropdown select component",
+        "states": ["default", "focus", "disabled", "error"]
+      },
+      "checkbox": {
+        "description": "Boolean input for multiple selections",
+        "states": ["unchecked", "checked", "indeterminate", "disabled"]
+      },
+      "radio": {
+        "description": "Boolean input for exclusive selection",
+        "states": ["unselected", "selected", "disabled"]
+      },
+      "toggle": {
+        "description": "Switch component for on/off states",
+        "states": ["on", "off", "disabled"]
+      },
+      "card": {
+        "description": "Container for grouped content",
+        "variants": ["elevated", "outlined", "filled"],
+        "parts": ["header", "body", "footer"]
+      },
+      "badge": {
+        "description": "Label for status and categorization",
+        "variants": ["primary", "success", "warning", "error", "neutral"]
+      },
+      "chip": {
+        "description": "Interactive chip for tags and filters",
+        "states": ["default", "selected", "hover"]
+      }
+    },
+    "usage": {
+      "installation": "All tokens are defined as JSON objects and can be imported into your design tools or transformed to CSS variables, Tailwind config, or other formats",
+      "import": "import designSystemTokens from '@/design-system/design-system.json'",
+      "examples": {
+        "colors": "colors.semantic.primary, colors.primitives.blue.500, colors.dark_mode.background.primary",
+        "spacing": "spacing.tokens.4, spacing.semantic.md, spacing.padding.lg",
+        "typography": "typography.headings.h1, typography.body.normal, typography.buttons.large",
+        "motion": "motion.transitions.all, motion.animations.fadeIn, motion.durations.base"
+      }
+    },
+    "references": {
+      "source": "Stacks Design System (Figma Community)",
+      "libraries": [
+        "Material Design 3",
+        "Simple Design System",
+        "iOS 26 & iPadOS 26",
+        "macOS 26",
+        "watchOS 26",
+        "visionOS 26"
+      ],
+      "figmaFile": "https://www.figma.com/design/J7EKMQhqRFBzUWp7WN7OUo/stacks-design-system--Community-"
+    }
+  }
+}

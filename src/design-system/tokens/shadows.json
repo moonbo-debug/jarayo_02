@@ -1,0 +1,40 @@
+{
+  "shadows": {
+    "elevation": {
+      "none": "none",
+      "xs": "0 1px 2px rgba(0, 0, 0, 0.05)",
+      "sm": "0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)",
+      "md": "0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)",
+      "lg": "0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)",
+      "xl": "0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04)",
+      "2xl": "0 25px 50px rgba(0, 0, 0, 0.25)",
+      "inner": "inset 0 2px 4px rgba(0, 0, 0, 0.05)"
+    },
+    "focus": "0 0 0 3px rgba(66, 153, 225, 0.5)",
+    "focusError": "0 0 0 3px rgba(239, 68, 68, 0.5)",
+    "focusSuccess": "0 0 0 3px rgba(34, 197, 94, 0.5)",
+    "focusWarning": "0 0 0 3px rgba(245, 158, 11, 0.5)",
+    "components": {
+      "button": {
+        "default": "0 1px 3px rgba(0, 0, 0, 0.1)",
+        "hover": "0 4px 6px rgba(0, 0, 0, 0.1)",
+        "active": "0 1px 2px rgba(0, 0, 0, 0.05)",
+        "disabled": "none"
+      },
+      "card": {
+        "default": "0 1px 3px rgba(0, 0, 0, 0.1)",
+        "hover": "0 10px 15px rgba(0, 0, 0, 0.1)",
+        "elevated": "0 20px 25px rgba(0, 0, 0, 0.1)"
+      },
+      "modal": "0 20px 25px rgba(0, 0, 0, 0.25), 0 25px 50px rgba(0, 0, 0, 0.15)",
+      "input": {
+        "default": "0 1px 2px rgba(0, 0, 0, 0.05)",
+        "focus": "0 0 0 3px rgba(66, 153, 225, 0.5)",
+        "error": "0 0 0 3px rgba(239, 68, 68, 0.5)"
+      },
+      "popover": "0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)",
+      "tooltip": "0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06)",
+      "dropdown": "0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)"
+    }
+  }
+}

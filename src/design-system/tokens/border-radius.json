@@ -1,0 +1,36 @@
+{
+  "borderRadius": {
+    "tokens": {
+      "none": "0px",
+      "xs": "2px",
+      "sm": "4px",
+      "md": "6px",
+      "lg": "8px",
+      "xl": "12px",
+      "2xl": "16px",
+      "3xl": "20px",
+      "4xl": "24px",
+      "5xl": "32px",
+      "full": "9999px"
+    },
+    "semantic": {
+      "small": "4px",
+      "medium": "8px",
+      "large": "12px",
+      "extraLarge": "16px",
+      "round": "50%",
+      "circular": "9999px"
+    },
+    "components": {
+      "button": "6px",
+      "input": "6px",
+      "card": "12px",
+      "modal": "12px",
+      "popover": "8px",
+      "chip": "16px",
+      "badge": "4px",
+      "avatar": "50%",
+      "tooltip": "4px"
+    }
+  }
+}

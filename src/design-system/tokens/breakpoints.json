@@ -1,0 +1,37 @@
+{
+  "breakpoints": {
+    "tokens": {
+      "xs": "320px",
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1280px",
+      "2xl": "1536px"
+    },
+    "mediaQueries": {
+      "mobile": "@media (max-width: 639px)",
+      "mobileLandscape": "@media (min-width: 640px) and (max-height: 500px)",
+      "tablet": "@media (min-width: 640px) and (max-width: 1023px)",
+      "desktop": "@media (min-width: 1024px)",
+      "wide": "@media (min-width: 1280px)",
+      "ultraWide": "@media (min-width: 1536px)",
+      "reducedMotion": "@media (prefers-reduced-motion: reduce)",
+      "darkMode": "@media (prefers-color-scheme: dark)",
+      "lightMode": "@media (prefers-color-scheme: light)",
+      "highContrast": "@media (prefers-contrast: more)"
+    },
+    "containers": {
+      "full": "100%",
+      "default": "1200px",
+      "narrow": "960px",
+      "wide": "1400px",
+      "maxContent": "100%"
+    },
+    "gridColumns": {
+      "mobile": 4,
+      "tablet": 8,
+      "desktop": 12,
+      "gutter": "16px"
+    }
+  }
+}

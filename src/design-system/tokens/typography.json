@@ -1,0 +1,153 @@
+{
+  "typography": {
+    "fontFamilies": {
+      "primary": "DM Sans",
+      "heading": "Poppins",
+      "mono": "Courier New"
+    },
+    "headings": {
+      "hero": {
+        "fontSize": 96,
+        "lineHeight": 112,
+        "fontWeight": 700,
+        "letterSpacing": -1.5,
+        "fontFamily": "Poppins"
+      },
+      "h1": {
+        "fontSize": 64,
+        "lineHeight": 80,
+        "fontWeight": 700,
+        "letterSpacing": -1,
+        "fontFamily": "Poppins"
+      },
+      "h2": {
+        "fontSize": 56,
+        "lineHeight": 72,
+        "fontWeight": 600,
+        "letterSpacing": -0.5,
+        "fontFamily": "Poppins"
+      },
+      "h3": {
+        "fontSize": 48,
+        "lineHeight": 64,
+        "fontWeight": 600,
+        "letterSpacing": 0,
+        "fontFamily": "Poppins"
+      },
+      "h4": {
+        "fontSize": 40,
+        "lineHeight": 56,
+        "fontWeight": 600,
+        "letterSpacing": 0.25,
+        "fontFamily": "Poppins"
+      }
+    },
+    "body": {
+      "large": {
+        "fontSize": 18,
+        "lineHeight": 32,
+        "fontWeight": 400,
+        "letterSpacing": 0,
+        "fontFamily": "DM Sans"
+      },
+      "largeBold": {
+        "fontSize": 18,
+        "lineHeight": 32,
+        "fontWeight": 700,
+        "letterSpacing": 0,
+        "fontFamily": "DM Sans"
+      },
+      "normal": {
+        "fontSize": 16,
+        "lineHeight": 24,
+        "fontWeight": 400,
+        "letterSpacing": 0.15,
+        "fontFamily": "DM Sans"
+      },
+      "normalBold": {
+        "fontSize": 16,
+        "lineHeight": 24,
+        "fontWeight": 600,
+        "letterSpacing": 0.15,
+        "fontFamily": "DM Sans"
+      },
+      "medium": {
+        "fontSize": 14,
+        "lineHeight": 20,
+        "fontWeight": 400,
+        "letterSpacing": 0.1,
+        "fontFamily": "DM Sans"
+      },
+      "mediumBold": {
+        "fontSize": 14,
+        "lineHeight": 20,
+        "fontWeight": 600,
+        "letterSpacing": 0.1,
+        "fontFamily": "DM Sans"
+      },
+      "small": {
+        "fontSize": 12,
+        "lineHeight": 18,
+        "fontWeight": 400,
+        "letterSpacing": 0.2,
+        "fontFamily": "DM Sans"
+      }
+    },
+    "captions": {
+      "caption": {
+        "fontSize": 12,
+        "lineHeight": 16,
+        "fontWeight": 500,
+        "letterSpacing": 0.4,
+        "fontFamily": "DM Sans"
+      },
+      "captionBold": {
+        "fontSize": 12,
+        "lineHeight": 16,
+        "fontWeight": 700,
+        "letterSpacing": 0.4,
+        "fontFamily": "DM Sans"
+      },
+      "hairlineSmall": {
+        "fontSize": 10,
+        "lineHeight": 12,
+        "fontWeight": 400,
+        "letterSpacing": 1,
+        "fontFamily": "DM Sans"
+      },
+      "hairlineLarge": {
+        "fontSize": 12,
+        "lineHeight": 16,
+        "fontWeight": 400,
+        "letterSpacing": 2,
+        "fontFamily": "DM Sans"
+      }
+    },
+    "buttons": {
+      "large": {
+        "fontSize": 16,
+        "lineHeight": 24,
+        "fontWeight": 600,
+        "letterSpacing": 0.15,
+        "fontFamily": "DM Sans",
+        "textTransform": "uppercase"
+      },
+      "medium": {
+        "fontSize": 14,
+        "lineHeight": 20,
+        "fontWeight": 600,
+        "letterSpacing": 0.1,
+        "fontFamily": "DM Sans",
+        "textTransform": "uppercase"
+      },
+      "small": {
+        "fontSize": 12,
+        "lineHeight": 16,
+        "fontWeight": 600,
+        "letterSpacing": 0.5,
+        "fontFamily": "DM Sans",
+        "textTransform": "uppercase"
+      }
+    }
+  }
+}

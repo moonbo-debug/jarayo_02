@@ -1,0 +1,121 @@
+{
+  "components": {
+    "card": {
+      "description": "Card container component for displaying content",
+      "base": {
+        "backgroundColor": "{colors.background.primary}",
+        "borderRadius": "{borderRadius.tokens.lg}",
+        "padding": "{spacing.tokens.6}",
+        "transition": "{motion.transitions.all}"
+      },
+      "variants": {
+        "elevated": {
+          "boxShadow": "{shadows.components.card.default}",
+          "backgroundColor": "{colors.background.primary}",
+          "border": "none"
+        },
+        "outlined": {
+          "backgroundColor": "{colors.background.primary}",
+          "border": "1px solid {colors.border.default}",
+          "boxShadow": "none"
+        },
+        "filled": {
+          "backgroundColor": "{colors.background.secondary}",
+          "border": "none",
+          "boxShadow": "none"
+        }
+      },
+      "states": {
+        "default": {
+          "boxShadow": "{shadows.components.card.default}"
+        },
+        "hover": {
+          "boxShadow": "{shadows.components.card.hover}",
+          "cursor": "pointer",
+          "transition": "{motion.transitions.all}"
+        },
+        "active": {
+          "boxShadow": "{shadows.components.card.elevated}"
+        }
+      },
+      "parts": {
+        "header": {
+          "padding": "0 0 {spacing.tokens.4} 0",
+          "borderBottom": "1px solid {colors.border.default}"
+        },
+        "body": {
+          "padding": "{spacing.tokens.4} 0"
+        },
+        "footer": {
+          "padding": "{spacing.tokens.4} 0 0 0",
+          "borderTop": "1px solid {colors.border.default}"
+        }
+      }
+    },
+    "badge": {
+      "description": "Badge component for labels and status indicators",
+      "base": {
+        "display": "inline-flex",
+        "alignItems": "center",
+        "padding": "{spacing.tokens.1} {spacing.tokens.2}",
+        "borderRadius": "{borderRadius.tokens.full}",
+        "fontSize": "11px",
+        "fontWeight": 600,
+        "lineHeight": "16px",
+        "whiteSpace": "nowrap"
+      },
+      "variants": {
+        "primary": {
+          "backgroundColor": "{colors.blue.100}",
+          "color": "{colors.blue.900}"
+        },
+        "success": {
+          "backgroundColor": "{colors.green.100}",
+          "color": "{colors.green.900}"
+        },
+        "warning": {
+          "backgroundColor": "{colors.amber.100}",
+          "color": "{colors.amber.900}"
+        },
+        "error": {
+          "backgroundColor": "{colors.red.100}",
+          "color": "{colors.red.900}"
+        },
+        "neutral": {
+          "backgroundColor": "{colors.gray100}",
+          "color": "{colors.gray700}"
+        }
+      }
+    },
+    "chip": {
+      "description": "Chip component for tags and filters",
+      "base": {
+        "display": "inline-flex",
+        "alignItems": "center",
+        "gap": "{spacing.tokens.2}",
+        "padding": "{spacing.tokens.1} {spacing.tokens.3}",
+        "borderRadius": "{borderRadius.tokens.full}",
+        "fontSize": "13px",
+        "fontWeight": 500,
+        "border": "1px solid {colors.border.default}",
+        "backgroundColor": "{colors.background.secondary}",
+        "cursor": "pointer",
+        "transition": "{motion.transitions.all}"
+      },
+      "states": {
+        "default": {
+          "backgroundColor": "{colors.background.secondary}",
+          "color": "{colors.text.primary}"
+        },
+        "selected": {
+          "backgroundColor": "{colors.semantic.primary}",
+          "color": "{colors.text.inverse}",
+          "border": "1px solid {colors.semantic.primary}"
+        },
+        "hover": {
+          "backgroundColor": "{colors.background.tertiary}"
+        }
+      }
+    }
+  }
+}

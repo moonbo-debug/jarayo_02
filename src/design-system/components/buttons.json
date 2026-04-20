@@ -1,0 +1,139 @@
+{
+  "components": {
+    "button": {
+      "description": "Button component with multiple variants and sizes",
+      "variants": {
+        "primary": {
+          "background": "{colors.semantic.primary}",
+          "color": "{colors.text.inverse}",
+          "border": "none",
+          "padding": "{spacing.tokens.2} {spacing.tokens.4}",
+          "borderRadius": "{borderRadius.tokens.md}",
+          "fontSize": "{typography.buttons.medium.fontSize}",
+          "fontWeight": "{typography.buttons.medium.fontWeight}",
+          "cursor": "pointer",
+          "transition": "{motion.transitions.all}",
+          "states": {
+            "default": {
+              "background": "{colors.semantic.primary}",
+              "boxShadow": "{shadows.components.button.default}"
+            },
+            "hover": {
+              "background": "{colors.semantic.primaryDark}",
+              "boxShadow": "{shadows.components.button.hover}"
+            },
+            "active": {
+              "background": "{colors.semantic.primaryDark}",
+              "boxShadow": "{shadows.components.button.active}"
+            },
+            "focus": {
+              "outline": "{shadows.focus}",
+              "outlineOffset": "2px"
+            },
+            "disabled": {
+              "background": "{colors.gray200}",
+              "color": "{colors.gray400}",
+              "cursor": "not-allowed",
+              "opacity": 0.5
+            }
+          }
+        },
+        "secondary": {
+          "background": "{colors.semantic.secondary}",
+          "color": "{colors.text.inverse}",
+          "border": "none",
+          "padding": "{spacing.tokens.2} {spacing.tokens.4}",
+          "borderRadius": "{borderRadius.tokens.md}",
+          "states": {
+            "default": {
+              "background": "{colors.semantic.secondary}"
+            },
+            "hover": {
+              "background": "{colors.semantic.secondaryDark}"
+            }
+          }
+        },
+        "outline": {
+          "background": "transparent",
+          "color": "{colors.semantic.primary}",
+          "border": "2px solid {colors.semantic.primary}",
+          "padding": "calc({spacing.tokens.2} - 2px) calc({spacing.tokens.4} - 2px)",
+          "borderRadius": "{borderRadius.tokens.md}",
+          "states": {
+            "hover": {
+              "background": "{colors.blue.50}"
+            },
+            "active": {
+              "background": "{colors.blue.100}"
+            }
+          }
+        },
+        "ghost": {
+          "background": "transparent",
+          "color": "{colors.semantic.primary}",
+          "border": "none",
+          "padding": "{spacing.tokens.2} {spacing.tokens.4}",
+          "borderRadius": "{borderRadius.tokens.md}",
+          "states": {
+            "hover": {
+              "background": "{colors.blue.50}"
+            }
+          }
+        },
+        "danger": {
+          "background": "{colors.semantic.error}",
+          "color": "{colors.text.inverse}",
+          "border": "none",
+          "padding": "{spacing.tokens.2} {spacing.tokens.4}",
+          "states": {
+            "hover": {
+              "background": "{colors.semantic.errorDark}"
+            },
+            "focus": {
+              "outline": "{shadows.focusError}",
+              "outlineOffset": "2px"
+            }
+          }
+        }
+      },
+      "sizes": {
+        "xs": {
+          "padding": "{spacing.tokens.1} {spacing.tokens.2}",
+          "fontSize": "12px",
+          "minHeight": "24px"
+        },
+        "sm": {
+          "padding": "{spacing.tokens.2} {spacing.tokens.3}",
+          "fontSize": "14px",
+          "minHeight": "32px"
+        },
+        "md": {
+          "padding": "{spacing.tokens.2} {spacing.tokens.4}",
+          "fontSize": "14px",
+          "minHeight": "40px"
+        },
+        "lg": {
+          "padding": "{spacing.tokens.3} {spacing.tokens.6}",
+          "fontSize": "16px",
+          "minHeight": "48px"
+        },
+        "xl": {
+          "padding": "{spacing.tokens.4} {spacing.tokens.8}",
+          "fontSize": "18px",
+          "minHeight": "56px"
+        }
+      },
+      "states": {
+        "loading": {
+          "opacity": 0.6,
+          "cursor": "not-allowed",
+          "pointerEvents": "none"
+        },
+        "disabled": {
+          "opacity": 0.5,
+          "cursor": "not-allowed"
+        }
+      }
+    }
+  }
+}
