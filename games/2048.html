@@ -91,11 +91,11 @@
   }
   .grid-bg {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* columns + cell sizes are set explicitly in JS so we don't rely on
+       aspect-ratio, which some in-app WebViews fail to size correctly. */
     gap: 12px;
   }
   .cell-bg {
-    aspect-ratio: 1 / 1;
     background: var(--empty);
     border-radius: 8px;
   }
@@ -235,11 +235,13 @@
   best = loadBest();
   bestEl.textContent = best;
 
-  // build background cells
+  // build background cells (keep refs so we can size them in JS)
+  const cellBgs = [];
   for (let i = 0; i < SIZE * SIZE; i++) {
     const c = document.createElement('div');
     c.className = 'cell-bg';
     gridBg.appendChild(c);
+    cellBgs.push(c);
   }
 
   function emptyGrid() {
@@ -290,12 +292,23 @@
     }
   }
 
-  // geometry for absolute positioning
-  function tileMetrics() {
-    const inner = tilesEl.clientWidth; // square
-    const gap = 12;
-    const cell = (inner - gap * (SIZE - 1)) / SIZE;
-    return { cell, gap };
+  // geometry for absolute positioning — computed explicitly in JS so we
+  // never depend on CSS aspect-ratio (unreliable in some in-app WebViews).
+  const GAP = 12;
+  let CELL = 0;
+
+  function layout() {
+    // Available content width inside the board's 12px padding.
+    let contentW = boardEl.clientWidth - 24;
+    if (!contentW || contentW <= 0) {
+      // Fallback if the board hasn't been measured yet.
+      const w = Math.min(window.innerWidth, 460);
+      contentW = w - 32 /* .wrap padding */ - 24 /* board padding */;
+    }
+    CELL = (contentW - GAP * (SIZE - 1)) / SIZE;
+    // Size the grid explicitly so it forms a real square block.
+    gridBg.style.gridTemplateColumns = `repeat(${SIZE}, ${CELL}px)`;
+    cellBgs.forEach(c => { c.style.width = CELL + 'px'; c.style.height = CELL + 'px'; });
   }
 
   function colorClass(v) {
@@ -304,9 +317,8 @@
   }
 
   function render() {
-    const { cell, gap } = tileMetrics();
-    // Layout not ready yet (width 0) — try again next frame.
-    if (cell <= 0) { requestAnimationFrame(render); return; }
+    layout();
+    const cell = CELL, gap = GAP;
     tilesEl.innerHTML = '';
     for (let r = 0; r < SIZE; r++) {
       for (let c = 0; c < SIZE; c++) {
